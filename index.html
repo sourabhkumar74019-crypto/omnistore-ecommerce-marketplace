@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniStore | Next-Gen E-Commerce Marketplace & Merchant Suite</title>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-body font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Header / Navigation Bar -->
+  <header class="header-glass sticky top-0 z-50 border-b transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-bag-shopping text-xl"></i>
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-tight text-brand">OmniStore</span>
+          <span class="block text-[10px] font-extrabold tracking-widest text-indigo-400 uppercase">Marketplace</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider">
+        <button onclick="switchMode('store')" id="nav-store" class="nav-link active">
+          <i class="fa-solid fa-store mr-1.5"></i> Storefront
+        </button>
+        <button onclick="switchMode('merchant')" id="nav-merchant" class="nav-link text-indigo-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-boxes-stacked"></i> Merchant Portal
+          <span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-[10px] px-1.5 py-0.5 rounded-full">Admin</span>
+        </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-link">
+          <i class="fa-solid fa-gear mr-1.5"></i> Settings
+        </button>
+      </nav>
+
+      <!-- Action Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Currency Selector -->
+        <select id="currencySelector" onchange="changeCurrency()" class="input-field text-xs font-bold px-2.5 py-2 rounded-xl">
+          <option value="USD">USD ($)</option>
+          <option value="INR">INR (₹)</option>
+        </select>
+
+        <!-- Auth Button -->
+        <button onclick="openModal('authModal')" id="loginBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition shadow-lg shadow-indigo-600/20">
+          Sign In
+        </button>
+
+        <!-- Cart Toggle -->
+        <button onclick="toggleCartDrawer()" class="relative bg-slate-800/80 hover:bg-slate-700 text-brand p-2.5 rounded-xl border card-border transition">
+          <i class="fa-solid fa-cart-shopping text-base text-indigo-400"></i>
+          <span id="cartCountBadge" class="absolute -top-1.5 -right-1.5 bg-indigo-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </button>
+
+        <!-- Theme Switcher -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn p-2.5 rounded-xl border transition-all flex items-center gap-2 text-xs font-semibold" title="Toggle Theme">
+          <i id="themeIcon" class="fa-solid fa-moon text-indigo-400"></i>
+          <span id="themeLabel" class="hidden sm:inline">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ========================================== -->
+  <!-- VIEW 1: CUSTOMER STOREFRONT PORTAL         -->
+  <!-- ========================================== -->
+  <div id="storeView" class="view-section space-y-8 flex-1">
+    
+    <!-- Hero Banner -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div class="relative rounded-3xl overflow-hidden border card-border shadow-2xl p-8 md:p-12 hero-banner">
+        <div class="max-w-2xl space-y-4 relative z-10">
+          <span class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <i class="fa-solid fa-bolt text-xs"></i> Next-Day Worldwide Shipping
+          </span>
+          <h1 class="text-3xl md:text-5xl font-black text-brand leading-tight">Curated Tech, Apparel & Modern Lifestyle Essentials</h1>
+          <p class="text-xs md:text-sm text-sub font-medium leading-relaxed">Discover top-tier tech gear, premium apparel, and ergonomic setups with instant multi-currency checkout.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filter Bar & Search -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="card-bg rounded-2xl p-4 border card-border flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2 flex-wrap" id="categoryFilterGroup">
+          <button onclick="filterCategory('All')" class="cat-btn active text-xs font-bold px-4 py-2 rounded-xl">All Products</button>
+          <button onclick="filterCategory('Electronics')" class="cat-btn text-xs font-bold px-4 py-2 rounded-xl">Electronics</button>
+          <button onclick="filterCategory('Gaming')" class="cat-btn text-xs font-bold px-4 py-2 rounded-xl">Gaming</button>
+          <button onclick="filterCategory('Fashion')" class="cat-btn text-xs font-bold px-4 py-2 rounded-xl">Fashion</button>
+          <button onclick="filterCategory('Home')" class="cat-btn text-xs font-bold px-4 py-2 rounded-xl">Home & Setup</button>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <div class="relative w-full sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+            <input type="text" id="storeSearchInput" oninput="renderStorefront()" placeholder="Search products..." class="input-field w-full pl-9 pr-3 py-2 text-xs rounded-xl font-medium">
+          </div>
+          <select id="sortSelector" onchange="renderStorefront()" class="input-field text-xs font-bold px-3 py-2 rounded-xl">
+            <option value="featured">Featured</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Storefront Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <div id="storefrontGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- VIEW 2: MERCHANT INVENTORY ADMIN DASHBOARD -->
+  <!-- ========================================== -->
+  <div id="merchantView" class="view-section max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 hidden">
+    
+    <!-- Admin Header Banner -->
+    <div class="card-bg p-6 rounded-3xl border card-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <span class="text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-3 py-1 rounded-full uppercase">Merchant Inventory Hub</span>
+        <h2 class="text-2xl font-black text-brand mt-2">Inventory & Sales Command Center</h2>
+        <p class="text-xs text-sub">Add new items, update prices, manage stock availability, and inspect catalog metrics.</p>
+      </div>
+      
+      <button onclick="openAddProductModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Upload New Product
+      </button>
+    </div>
+
+    <!-- Merchant Table -->
+    <div class="card-bg rounded-2xl border card-border overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900/80 text-sub font-bold uppercase tracking-wider border-b card-border">
+            <tr>
+              <th class="p-4">Product Details</th>
+              <th class="p-4">Category</th>
+              <th class="p-4">Price</th>
+              <th class="p-4">Stock Status</th>
+              <th class="p-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="merchantTableBody" class="divide-y card-border font-medium">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- VIEW 3: SETTINGS HUB                       -->
+  <!-- ========================================== -->
+  <div id="settingsView" class="view-section max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 hidden">
+    <div>
+      <h2 class="text-2xl font-black text-brand">Merchant Store & User Settings</h2>
+      <p class="text-xs text-sub">Manage store details, tax rules, and security controls.</p>
+    </div>
+
+    <div class="space-y-6">
+      <div class="card-bg p-6 rounded-3xl border card-border space-y-4">
+        <h3 class="text-base font-extrabold text-brand border-b card-border pb-3">Store Credentials & Regional Parameters</h3>
+        <form onsubmit="handleSettingsSave(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Store Name</label>
+              <input type="text" value="OmniStore Global" required class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Merchant Contact Email</label>
+              <input type="email" value="sourabh@omnistore.io" required class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Default Sales Tax (%)</label>
+              <input type="number" step="0.1" value="10.0" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-sub uppercase">Promo Code Active</label>
+              <input type="text" value="SAVE10" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20">
+              Save Store Settings
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Legal Trust Links -->
+      <div class="card-bg p-6 rounded-3xl border card-border flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h4 class="text-xs font-bold text-brand">Legal & E-Commerce Compliance</h4>
+          <p class="text-[11px] text-sub">Global consumer rights and return policies.</p>
+        </div>
+        <div class="flex gap-3 text-xs font-bold">
+          <button onclick="openModal('privacyModal')" class="text-indigo-400 hover:underline">Privacy Policy</button>
+          <span class="text-slate-600">•</span>
+          <button onclick="openModal('termsModal')" class="text-indigo-400 hover:underline">Terms of Sale</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOPPING CART DRAWER (SLIDE OVER) -->
+  <div id="cartDrawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleCartDrawer()" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="absolute right-0 top-0 bottom-0 max-w-md w-full card-bg border-l card-border p-6 flex flex-col justify-between z-10 shadow-2xl">
+      <div>
+        <div class="flex justify-between items-center border-b card-border pb-4">
+          <h3 class="font-extrabold text-brand text-lg"><i class="fa-solid fa-cart-shopping text-indigo-400 mr-2"></i> Your Shopping Bag</h3>
+          <button onclick="toggleCartDrawer()" class="text-sub hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <div id="cartItemsContainer" class="py-4 space-y-3 max-h-[55vh] overflow-y-auto">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+
+      <div class="border-t card-border pt-4 space-y-3">
+        <!-- Promo Coupon Input -->
+        <div class="flex gap-2">
+          <input type="text" id="promoInput" placeholder="Promo code (e.g. SAVE10)" class="input-field flex-1 px-3 py-2 text-xs rounded-xl font-medium uppercase">
+          <button onclick="applyPromoCode()" class="bg-slate-800 hover:bg-slate-700 text-brand text-xs font-bold px-3 py-2 rounded-xl transition">Apply</button>
+        </div>
+
+        <div class="space-y-1 text-xs font-bold">
+          <div class="flex justify-between text-sub"><span>Subtotal:</span><span id="cartSubtotal">$0.00</span></div>
+          <div class="flex justify-between text-sub"><span>Tax (10%):</span><span id="cartTax">$0.00</span></div>
+          <div id="discountRow" class="flex justify-between text-emerald-400 hidden"><span>Discount (10%):</span><span id="cartDiscount">-$0.00</span></div>
+          <div class="flex justify-between text-brand text-sm font-black pt-2 border-t card-border"><span>Total Amount:</span><span id="cartTotal" class="text-indigo-400">$0.00</span></div>
+        </div>
+
+        <button onclick="handleCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-indigo-600/20">
+          Complete Purchase
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: ADD / EDIT PRODUCT (ADMIN) -->
+  <div id="productModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-md w-full p-6 rounded-3xl border card-border space-y-4 relative">
+      <button onclick="closeModal('productModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+
+      <h3 id="productModalTitle" class="text-xl font-extrabold text-brand">Upload Product Listing</h3>
+
+      <form onsubmit="handleProductSave(event)" class="space-y-3">
+        <input type="hidden" id="editProdId" value="">
+
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Product Title</label>
+          <input type="text" id="prodTitle" required placeholder="Acoustic Wireless Headphones" class="input-field w-full px-3.5 py-2 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Category</label>
+            <select id="prodCategory" class="input-field w-full px-3.5 py-2 text-xs rounded-xl font-medium mt-1">
+              <option value="Electronics">Electronics</option>
+              <option value="Gaming">Gaming</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home">Home & Setup</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-sub uppercase">Price ($ USD)</label>
+            <input type="number" step="0.01" id="prodPrice" required placeholder="199.99" class="input-field w-full px-3.5 py-2 text-xs rounded-xl font-medium mt-1">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Image URL</label>
+          <input type="url" id="prodImage" required placeholder="https://images.unsplash.com/..." class="input-field w-full px-3.5 py-2 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Description</label>
+          <textarea id="prodDesc" rows="2" placeholder="Noise cancelling dual audio drivers..." class="input-field w-full px-3.5 py-2 text-xs rounded-xl font-medium mt-1"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-indigo-600/20">
+          Save Product Listing
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: AUTHENTICATION -->
+  <div id="authModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-md w-full p-6 rounded-3xl border card-border space-y-4 relative">
+      <button onclick="closeModal('authModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+
+      <div class="text-center space-y-1">
+        <h3 class="text-xl font-black text-brand">OmniStore Sign In</h3>
+        <p class="text-xs text-sub">Access your customer orders and merchant inventory</p>
+      </div>
+
+      <form onsubmit="handleAuthLogin(event)" class="space-y-3">
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Email Address</label>
+          <input type="email" required value="sourabh@omnistore.io" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-sub uppercase">Password</label>
+          <input type="password" required value="password123" class="input-field w-full px-3.5 py-2.5 text-xs rounded-xl font-medium mt-1">
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-indigo-600/20">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: PRIVACY POLICY -->
+  <div id="privacyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-lg w-full p-6 rounded-3xl border card-border space-y-4 relative max-h-[80vh] overflow-y-auto">
+      <button onclick="closeModal('privacyModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+      <h3 class="font-black text-brand text-lg">Privacy & Data Security Notice</h3>
+      <div class="text-xs text-sub space-y-3 leading-relaxed">
+        <p>OmniStore encrypts payment tokens and customer shipping details using AES-256 standard protocols.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: TERMS OF SALE -->
+  <div id="termsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="card-bg max-w-lg w-full p-6 rounded-3xl border card-border space-y-4 relative max-h-[80vh] overflow-y-auto">
+      <button onclick="closeModal('termsModal')" class="absolute top-6 right-6 text-slate-400 hover:text-brand"><i class="fa-solid fa-xmark text-xl"></i></button>
+      <h3 class="font-black text-brand text-lg">Terms of Sale & Returns Policy</h3>
+      <div class="text-xs text-sub space-y-3 leading-relaxed">
+        <p>All tech hardware orders qualify for a 30-day money-back return window upon delivery verification.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t card-border py-4 px-6 text-xs text-sub flex justify-between items-center mt-auto">
+    <span>&copy; 2026 OmniStore Global Marketplace. All rights reserved.</span>
+    <div class="flex gap-4">
+      <button onclick="openModal('privacyModal')" class="hover:text-brand">Privacy Policy</button>
+      <button onclick="openModal('termsModal')" class="hover:text-brand">Terms</button>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
